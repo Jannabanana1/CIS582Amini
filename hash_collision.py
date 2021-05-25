@@ -14,7 +14,6 @@ def hash_collision(k):
     notMatched = True
 
     while (notMatched):
-        print(trial, "th trial")
         trial += 1
         letters = string.ascii_letters
         x = ''.join(random.choice(letters) for i in range(4))
