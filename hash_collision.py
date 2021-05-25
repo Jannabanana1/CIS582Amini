@@ -5,10 +5,8 @@ import string
 
 def hash_collision(k):
     if not isinstance(k,int):
-        print( "hash_collision expects an integer" )
         return( b'\x00',b'\x00' )
     if k < 0:
-        print( "Specify a positive number of bits" )
         return( b'\x00',b'\x00' )
 
     #Collision finding code goes here
@@ -32,7 +30,6 @@ def hash_collision(k):
         y_hashed = bin(int(y_hashed, 16))
 
         for i in range(k):
-            print(i+1, " digits are matched.")
             if x_hashed[-1-i]!=y_hashed[-1-i]:
                 break
             if i>=(k-1):
