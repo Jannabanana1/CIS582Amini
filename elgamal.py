@@ -5,6 +5,8 @@ from params import g
 
 def keygen():
     q = int( (p - 1)/2 )
+    print("p:", p)
+    print("q:", q)
     a = random.sample(range(1, q + 1), 1)[0]
     sk = a
     h = pow(g, a, p)
@@ -29,4 +31,5 @@ pk, sk = keygen()
 c = encrypt(pk, 100)
 m = decrypt(sk, c)
 print(m)
+
 
