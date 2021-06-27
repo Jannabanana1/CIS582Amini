@@ -13,6 +13,9 @@ else:
     print( "Failed to connect to Ethereum node!" )
 
 def get_transaction(tx):
+    print("In get_transaction")
+    print("type(tx):", type(tx))
+    print("tx: ", tx)
     tx = {}   #YOUR CODE HERE
     tx = w3.eth.getTransaction(tx)
     return tx
@@ -20,11 +23,17 @@ def get_transaction(tx):
 # Return the gas price used by a particular transaction,
 #   tx is the transaction
 def get_gas_price(tx):
+    print("In get_gas_price")
+    print("type(tx):", type(tx))
+    print("tx: ", tx)
     gas_price = 1 #YOUR CODE HERE
     gas_price = tx.get('gasPrice')
     return gas_price
 
 def get_gas(tx):
+    print("In get_gas")
+    print("type(tx):", type(tx))
+    print("tx: ", tx)
     gas = 1 #YOUR CODE HERE
     hash = tx.get('hash')
     tx = w3.eth.get_transaction_receipt(hash)
@@ -32,8 +41,12 @@ def get_gas(tx):
     return gas
 
 def get_transaction_cost(tx):
+    print("In get_transaction_cost")
+    print("type(tx):", type(tx))
+    print("tx: ", tx)
     tx_cost = 1 #YOUR CODE HERE
     tx_cost = get_gas(tx) * get_gas_price(tx)
+    tx_cost = 1_000_000_000 * tx_cost
     return tx_cost
 
 def get_block_cost(block_num):
