@@ -12,44 +12,45 @@ if w3.isConnected():
 else:
     print( "Failed to connect to Ethereum node!" )
 
+max_tx = HexBytes('0xf7f4905225c0fde293e2fd3476e97a9c878649dd96eb02c86b86be5b92d826b6')
+
 def get_transaction(tx):
-    print("In get_transaction")
-    print("type(tx):", type(tx))
-    print("tx: ", tx)
     tx = {}   #YOUR CODE HERE
-    tx = w3.eth.getTransaction(tx)
+    tx = w3.eth.get_transaction(tx)
     return tx
 
-# Return the gas price used by a particular transaction,
-#   tx is the transaction
 def get_gas_price(tx):
-    print("In get_gas_price")
-    print("type(tx):", type(tx))
-    print("tx: ", tx)
+    """
+    Unit in wei.
+    1 gwei = 0.000000001 ETH
+    10^18 wei = 1 ETH
+    1 gwei = 10^9 wei
+    """
     gas_price = 1 #YOUR CODE HERE
-    gas_price = tx.get('gasPrice')
+    tx2 = w3.eth.get_transaction(tx.hex())
+    gas_price = tx2.get('gasPrice')
     return gas_price
 
 def get_gas(tx):
-    print("In get_gas")
-    print("type(tx):", type(tx))
-    print("tx: ", tx)
     gas = 1 #YOUR CODE HERE
-    hash = tx.get('hash')
-    tx = w3.eth.get_transaction_receipt(hash)
-    gas = tx.get('gasUsed')
+    tx2 = w3.eth.get_transaction_receipt(tx.hex())
+    gas = tx2.get('gasUsed')
     return gas
 
 def get_transaction_cost(tx):
-    print("In get_transaction_cost")
-    print("type(tx):", type(tx))
-    print("tx: ", tx)
+    """
+    Unit in Wei
+    """
     tx_cost = 1 #YOUR CODE HERE
-    tx_cost = get_gas(tx) * get_gas_price(tx)
-    tx_cost = 1_000_000_000 * tx_cost
+    gas = get_gas(tx)
+    gas_price = get_gas_price(tx)
+    tx_cost = gas * gas_price
     return tx_cost
 
 def get_block_cost(block_num):
+    """
+    Unit in Wei
+    """
     block_cost = 1  #YOUR CODE HERE
     block = w3.eth.get_block(block_num)
     txs = block.get('transactions')
