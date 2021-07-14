@@ -12,6 +12,7 @@ app.url_map.strict_slashes = False
 def verify():
     content = request.get_json(silent=True, force=True)
     #Check if signature is valid
+    print(content)
     if content == None:
         return jsonify("No json data is sent.")
     sig = content.get('sig')
@@ -19,14 +20,11 @@ def verify():
     message = payload.get('message')
     pk = payload.get('pk')
     platform = payload.get('platform')
-    encoded_msg = eth_account.messages.encode_defunct(text=message)
-    print(type(encoded_msg), ": ", encoded_msg)
-    print(type(sig), ": ", sig)
-    print(type(pk), ": ", pk)
     if platform == "Ethereum":
+        encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
         result = eth_account.Account.recover_message(encoded_msg,signature=sig) == pk
     else:
-        result = False
+        result = algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, pk)
     return jsonify(result)
 
 
