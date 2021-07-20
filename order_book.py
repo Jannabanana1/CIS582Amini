@@ -9,7 +9,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 def process_order(order_dict):
-    order = Order( sender_pk=order_dict['sender_pk'],receiver_pk=order_dict['receiver_pk'], buy_currency=order_dict['buy_currency'], sell_currency=order_dict['sell_currency'], buy_amount=order_dict['buy_amount'], sell_amount=order_dict['sell_amount'] )
+    order = Order( sender_pk=order_dict['sender_pk'],receiver_pk=order_dict['receiver_pk'], buy_currency=order_dict['buy_currency'], sell_currency=order_dict['sell_currency'], buy_amount=order_dict['buy_amount'], sell_amount=order_dict['sell_amount'], creator_id=order_dict.get('creator_id', None))
     session.add(order)
     session.commit()
     orders = session.query(Order).filter(Order.filled==None).all()
@@ -32,10 +32,11 @@ def process_order(order_dict):
                 process_order(new_order_dict)
 
 
-def match_found(new_order, existing_order):
+def match_found(order, existing_order):
     if existing_order.filled==None:
-        if existing_order.buy_currency==new_order.sell_currency:
-            if existing_order.sell_currency==new_order.buy_currency:
-                if existing_order.sell_amount / existing_order.buy_amount >= new_order.buy_amount / new_order.sell_amount:
+        if existing_order.buy_currency==order.sell_currency:
+            if existing_order.sell_currency==order.buy_currency:
+                if existing_order.sell_amount / existing_order.buy_amount >= order.buy_amount / order.sell_amount:
                     return True
     return False
+
