@@ -19,7 +19,6 @@ def process_order(order_dict):
             existing_order.filled = datetime.now()
             order.counterparty_id = existing_order.id
             existing_order.counterparty_id = order.id   
-            
             if order.buy_amount > existing_order.sell_amount:
                 new_order_dict = {}
                 new_order_dict['sender_pk'] = order.sender_pk
@@ -40,4 +39,3 @@ def match_found(order, existing_order):
                 if existing_order.sell_amount / existing_order.buy_amount >= order.buy_amount / order.sell_amount:
                     return True
     return False
-
