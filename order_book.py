@@ -41,7 +41,7 @@ def process_order(order_dict):
     orders = session.query(Order).filter(Order.filled==None).all()
     
     for existing_order in orders:
-      is_match_found = find_match(order, existing_order)
+      is_match_found = match(order, existing_order)
       if is_match_found:
         order.filled = datetime.now()
         existing_order.filled = datetime.now()
@@ -72,7 +72,7 @@ def process_order(order_dict):
                 child['creator_id'] = existing_order.id
                 process_order(child)
 
-def find_match(order, existing_order):
+def match(order, existing_order):
     if existing_order.filled==None:
         if existing_order.buy_currency==order.sell_currency:
             if existing_order.sell_currency==order.buy_currency:
