@@ -34,7 +34,7 @@ def process_order(order_dict):
                 new_order['sell_currency'] = order.sell_currency
                 new_buy_amount = order.buy_amount - existing_order.sell_amount
                 new_order['buy_amount'] =  new_buy_amount
-                new_order['sell_amount'] = 1.1*(new_buy_amount * order.sell_amount / order.buy_amount)
+                new_order['sell_amount'] = (new_buy_amount * order.sell_amount / order.buy_amount)
                 new_order = Order(creator_id=new_order['creator_id'], sender_pk=new_order['sender_pk'],
                                   receiver_pk=new_order['receiver_pk'], buy_currency=new_order['buy_currency'],
                                   sell_currency=new_order['sell_currency'], buy_amount=new_order['buy_amount'],
@@ -43,14 +43,14 @@ def process_order(order_dict):
 
             elif order.buy_amount < existing_order.sell_amount:
                 new_order = {}
-                new_order['creator_id'] = order.id
+                new_order['creator_id'] = existing_order.id
                 new_order['sender_pk'] = existing_order.sender_pk
                 new_order['receiver_pk'] = existing_order.receiver_pk
                 new_order['buy_currency'] = existing_order.buy_currency
                 new_order['sell_currency'] = existing_order.sell_currency
                 new_sell_amount = existing_order.sell_amount - order.buy_amount
                 new_order['buy_amount'] =  new_sell_amount
-                new_order['sell_amount'] = 1.1*(new_sell_amount * existing_order.buy_amount / existing_order.sell_amount)
+                new_order['sell_amount'] =(new_sell_amount * existing_order.buy_amount / existing_order.sell_amount)
                 new_order = Order(creator_id=new_order['creator_id'], sender_pk=new_order['sender_pk'],
                                   receiver_pk=new_order['receiver_pk'], buy_currency=new_order['buy_currency'],
                                   sell_currency=new_order['sell_currency'], buy_amount=new_order['buy_amount'],
