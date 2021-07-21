@@ -65,4 +65,3 @@ def match_found(order, existing_order):
                 if existing_order.sell_amount / existing_order.buy_amount >= order.buy_amount / order.sell_amount:
                     return True
     return False
-
