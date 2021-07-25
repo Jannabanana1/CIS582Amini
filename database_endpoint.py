@@ -43,7 +43,8 @@ def log_message(d):
 def trade():
     if request.method == "POST":
         content = request.get_json(silent=True)
-        print( f"content = {json.dumps(content)}" )
+        # print(f"content = {json.dumps(content)}")
+        print(json.dumps(content))
         columns = [
             "sender_pk",
             "receiver_pk",
@@ -58,7 +59,6 @@ def trade():
         for field in fields:
             if not field in content.keys():
                 print( f"{field} not received by Trade" )
-                print( json.dumps(content) )
                 log_message(content)
                 return jsonify( False )
         
@@ -85,7 +85,7 @@ def trade():
         platform = payload['platform']
 
         if platform == 'Ethereum':
-            encoded_msg = eth_account.message.encode_defunct(text=json.dumps(payload))
+            encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
             response = eth_account.Account.recover_message(encoded_msg, signature=sig)==sender_pk
         else:
             response = algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
@@ -102,10 +102,10 @@ def trade():
             )
             g.session.add(new_order)
             g.session.commit()
-            return True
+            return jsonify(True)
         else: # fail to verify
             log_message(payload)
-            return False
+            return jsonify(False)
 
 @app.route('/order_book')
 def order_book():
