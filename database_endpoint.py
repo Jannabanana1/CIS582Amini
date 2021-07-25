@@ -11,7 +11,6 @@ from sqlalchemy.orm import load_only
 
 from models import Base, Order, Log
 engine = create_engine('sqlite:///orders.db')
-Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
@@ -29,6 +28,16 @@ def shutdown_session(response_or_exc):
 """
 -------- Helper methods (feel free to add your own!) -------
 """
+def order_obj_to_dict(order_obj):
+    d = {}
+    d['sender_pk'] = order_obj.sender_pk
+    d['receiver_pk'] = order_obj.receiver_pk
+    d['buy_currency'] = order_obj.buy_currency
+    d['sell_currency'] = order_obj.sell_currency
+    d['buy_amount'] = order_obj.buy_amount
+    d['sell_amount'] = order_obj.sell_amount
+    d['signature'] = order_obj.signature
+    return d
 
 def log_message(d):
     # Takes input dictionary d and writes it to the Log table
@@ -43,7 +52,8 @@ def log_message(d):
 def trade():
     if request.method == "POST":
         content = request.get_json(silent=True)
-        print( f"content = {json.dumps(content)}" )
+        # print(f"content = {json.dumps(content)}")
+        print(json.dumps(content))
         columns = [
             "sender_pk",
             "receiver_pk",
@@ -58,7 +68,6 @@ def trade():
         for field in fields:
             if not field in content.keys():
                 print( f"{field} not received by Trade" )
-                print( json.dumps(content) )
                 log_message(content)
                 return jsonify( False )
         
@@ -85,7 +94,7 @@ def trade():
         platform = payload['platform']
 
         if platform == 'Ethereum':
-            encoded_msg = eth_account.message.encode_defunct(text=json.dumps(payload))
+            encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
             response = eth_account.Account.recover_message(encoded_msg, signature=sig)==sender_pk
         else:
             response = algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
@@ -111,9 +120,11 @@ def trade():
 def order_book():
     #Your code here
     #Note that you can access the database session using g.session
-    orders = g.session.query(Order).all()
-    orders = json.dumps(orders)
-    return jsonify(orders)
+    order_dict = {'data': []}
+    orders = g.session.query(Order)
+    for order in orders:
+        order_dict['data'].append(order_obj_to_dict(order))
+    return jsonify(order_dict)
 
 if __name__ == '__main__':
     app.run(port='5002')
