@@ -34,7 +34,7 @@ def log_message(d):
     # Takes input dictionary d and writes it to the Log table
     new_log = Log(message=json.dumps(d))
     g.session.add(new_log)
-
+    g.session.commit()
 """
 ---------------- Endpoints ----------------
 """
@@ -78,7 +78,6 @@ def trade():
         payload = content['payload']
         receiver_pk = payload['receiver_pk']
         sender_pk = payload['sender_pk']
-        tx_id = "???"
         buy_currency = payload['buy_currency']
         sell_currency = payload['sell_currency']
         buy_amount = payload['buy_amount']
@@ -95,7 +94,6 @@ def trade():
             new_order = Order(
                 receiver_pk = receiver_pk,
                 sender_pk = sender_pk,
-                tx_id = tx_id,
                 buy_currency = buy_currency,
                 sell_currency = sell_currency,
                 buy_amount = buy_amount,
