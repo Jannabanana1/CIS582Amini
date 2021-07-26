@@ -115,7 +115,7 @@ def trade():
             log_message(payload)
             return jsonify(False)
     else:
-        return jsonify(False)
+        return jsonify(True)
 
 @app.route('/order_book')
 def order_book():
@@ -125,7 +125,7 @@ def order_book():
     orders = g.session.query(Order)
     for order in orders:
         order_dict['data'].append(order_obj_to_dict(order))
-    return json.dumps(jsonify(order_dict))
+    return json.dumps(order_dict)
 
 if __name__ == '__main__':
     app.run(port='5002')
