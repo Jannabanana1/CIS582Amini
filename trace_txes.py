@@ -41,8 +41,8 @@ class TXO:
         tx = rpc_connection.getrawtransaction(tx_hash, True)
         tx_hash = tx.get('hash')
         vout = tx.get('vout')[n]
-        amount = int(vout.get('value') * 10**9)
-        owner = vout.get('scriptPubKey').get('addresses')
+        amount = int(vout.get('value') * 10**8)
+        owner = vout.get('scriptPubKey').get('addresses')[0]
         time= datetime.fromtimestamp(tx.get('time'))
         return cls(tx_hash, n, amount, owner, time)
 
@@ -76,6 +76,7 @@ tx_pizza = rpc_connection.getrawtransaction(txid_pizza, True)
 # for vin in vins:
 #     pprint(vin)
 # print("vout: ")
+pprint(tx_pizza.get('vout')[0])
 # amount = tx_pizza.get('vout')[0].get('value')
 # pprint(amount)
 # pprint("        " + str(int(amount * 10**9)))
