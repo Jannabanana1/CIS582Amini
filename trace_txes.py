@@ -47,11 +47,11 @@ class TXO:
         return cls(tx_hash, n, amount, owner, time)
 
     def get_inputs(self,d=1):
-        tx = rpc_connection.getrawtransaction(tx_hash, True)
+        tx = rpc_connection.getrawtransaction(self.tx_hash, True)
         vins = tx.get('vin')
         for vin in vins:
             txid = vin.get('txid')
-            self.inputs.append(TXO(txid))
+            self.inputs.append(TXO.from_tx_hash(txid))
 
 
 
