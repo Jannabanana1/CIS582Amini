@@ -41,7 +41,7 @@ class TXO:
         tx = rpc_connection.getrawtransaction(tx_hash, True)
         tx_hash = tx.get('hash')
         vout = tx.get('vout')[n]
-        amount = vout.get('value')
+        amount = int(vout.get('value'))
         owner = vout.get('scriptPubKey').get('addresses')
         time= datetime.fromtimestamp(tx.get('time'))
         return cls(tx_hash, n, amount, owner, time)
@@ -59,9 +59,14 @@ class TXO:
 # First ever Bitcoin transaction to Hal Finney in 2010
 txid_first = 'f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16'
 # #  Pizza transaction for 10,000 BTC in 2010.
-# txid_pizza= 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+txid_pizza= 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+
+txo = TXO.from_tx_hash(txid_pizza)
+txo.get_inputs()
+for input in txo.inputs:
+    print(input)
 # tx_first = rpc_connection.getrawtransaction(txid_first, True)
-# tx_pizza = rpc_connection.getrawtransaction(txid_pizza, True)
+tx_pizza = rpc_connection.getrawtransaction(txid_pizza, True)
 # print(tx_pizza['time'])
 # print("Pizza transation in 2010: {}".format(datetime.fromtimestamp(tx_pizza['time'])))
 # print("Frist transation in 2009: {}".format(datetime.fromtimestamp(tx_first['time'])))
@@ -71,7 +76,8 @@ txid_first = 'f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16'
 # for vin in vins:
 #     pprint(vin)
 # print("vout: ")
-# pprint(tx_pizza.get('vout'))
+# amount = tx_pizza.get('vout')[0].get('value')
+# pprint(int(amount))
 
 # pprint(tx_pizza.get('hash'))
 
