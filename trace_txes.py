@@ -41,7 +41,7 @@ class TXO:
         tx = rpc_connection.getrawtransaction(tx_hash, True)
         tx_hash = tx.get('hash')
         vout = tx.get('vout')[n]
-        amount = int(vout.get('value'))
+        amount = int(vout.get('value') * 10**9)
         owner = vout.get('scriptPubKey').get('addresses')
         time= datetime.fromtimestamp(tx.get('time'))
         return cls(tx_hash, n, amount, owner, time)
@@ -61,10 +61,10 @@ txid_first = 'f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16'
 # #  Pizza transaction for 10,000 BTC in 2010.
 txid_pizza= 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
 
-txo = TXO.from_tx_hash(txid_pizza)
-txo.get_inputs()
-for input in txo.inputs:
-    print(input)
+# txo = TXO.from_tx_hash(txid_pizza)
+# txo.get_inputs()
+# for input in txo.inputs:
+#     print(input)
 # tx_first = rpc_connection.getrawtransaction(txid_first, True)
 tx_pizza = rpc_connection.getrawtransaction(txid_pizza, True)
 # print(tx_pizza['time'])
@@ -77,11 +77,12 @@ tx_pizza = rpc_connection.getrawtransaction(txid_pizza, True)
 #     pprint(vin)
 # print("vout: ")
 # amount = tx_pizza.get('vout')[0].get('value')
-# pprint(int(amount))
+# pprint(amount)
+# pprint("        " + str(int(amount * 10**9)))
 
 # pprint(tx_pizza.get('hash'))
 
-# {'scriptSig': {'asm': '304402206d404ac1dbd95cf899652a2ed6cc74eeaf003b46c00d0fa20097a4e901279f4402203ecb94993307fa940c071094d3efb2adfbc282eb8d53c14aade3c9e7b6703956[ALL] '
+# {'scriptSig': {'asm': x'304402206d404ac1dbd95cf899652a2ed6cc74eeaf003b46c00d0fa20097a4e901279f4402203ecb94993307fa940c071094d3efb2adfbc282eb8d53c14aade3c9e7b6703956[ALL] '
 #                       '0434417dd8d89deaf0f6481c2c160d6de0921624ef7b956f38eef9ed4a64e36877be84b77cdee5a8d92b7d93694f89c3011bf1cbdf4fd7d8ca13b58a7bb4ab0804',
 #                'hex': '47304402206d404ac1dbd95cf899652a2ed6cc74eeaf003b46c00d0fa20097a4e901279f4402203ecb94993307fa940c071094d3efb2adfbc282eb8d53c14aade3c9e7b670395601410434417dd8d89deaf0f6481c2c160d6de0921624ef7b956f38eef9ed4a64e36877be84b77cdee5a8d92b7d93694f89c3011bf1cbdf4fd7d8ca13b58a7bb4ab0804'},
 #  'sequence': 4294967295,
