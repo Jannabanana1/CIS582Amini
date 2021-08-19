@@ -86,6 +86,14 @@ def connect_to_blockchains():
         
 """ Helper Methods (skeleton code for you to implement) """
 
+def find_match(order, unfilled_order):
+    if order.filled==None:
+        if order.buy_currency == unfilled_order.sell_currency:
+            if order.sell_currency == unfilled_order.buy_currency:
+                if unfilled_order.sell_amount / unfilled_order.buy_amount >= order.buy_amount / order.sell_amount:
+                    return True
+    return False
+
 def log_message(message_dict):
     msg = json.dumps(message_dict)
 
@@ -128,9 +136,46 @@ def fill_order(order, txes=[]):
 	# If your fill_order function is recursive, and you want to have fill_order return a list of transactions to be filled, 
 	# Then you can use the "txes" argument to pass the current list of txes down the recursion
 	# Note: your fill_order function is *not* required to be recursive, and it is *not* required that it return a list of transactions, 
-	# but executing a group of transactions can be more efficient, and gets around the Ethereum nonce issue described in the instructions
-    
-    pass
+	# but executing a group of transactions can be more efficient, and gets around the Ethereum nonce issue described in the instructions  
+    for existing_order in txes:
+        transacts = []
+        if find_match(order, existing_order):
+            order.filled = datetime.now()
+            existing_order.filled = datetime.now()
+            order.counterparty_id = existing_order.id
+            existing_order.counterparty_id = order.id
+            if order.buy_amount > existing_order.sell_amount:
+                child = {}
+                child['sender_pk'] = order.sender_pk
+                child['receiver_pk'] = order.receiver_pk
+                child['buy_currency'] = order.buy_currency
+                child['sell_currency'] = order.sell_currency
+                child['buy_amount'] = order.buy_amount - existing_order.sell_amount
+                child['sell_amount'] = 1.1*((order.buy_amount - existing_order.sell_amount) * order.buy_amount/order.sell_amount )
+                child['creator_id'] = order.id
+                child['tx_id'] = order.tx_id
+                child_order = Order(creator_id=child['creator_id'], sender_pk=child['sender_pk'],receiver_pk=child['receiver_pk'], buy_currency=child['buy_currency'], sell_currency=child['sell_currency'], buy_amount=child['buy_amount'], sell_amount=child['sell_amount'] )
+                g.session.add(child)
+                g.session.commit()
+                tx = TX(platform=child_order.platform, receiver_pk=child_order.receiver_pk, order_id=child_order.id, tx_id=child_order.tx_id)
+                transacts.append(tx)
+
+            if existing_order.sell_amount  >order.buy_amount:
+                child = {}
+                child['sender_pk'] = existing_order.sender_pk
+                child['receiver_pk'] = existing_order.receiver_pk
+                child['buy_currency'] = existing_order.buy_currency
+                child['sell_currency'] = existing_order.sell_currency
+                child['sell_amount'] = existing_order.sell_amount - order.buy_amount
+                child['buy_amount'] = 0.9*((existing_order.sell_amount - order.buy_amount) * existing_order.buy_amount/existing_order.sell_amount )
+                child['creator_id'] = existing_order.id
+                child['tx_id'] = order.tx_id
+                child_order = Order(creator_id=child['creator_id'], sender_pk=child['sender_pk'],receiver_pk=child['receiver_pk'], buy_currency=child['buy_currency'], sell_currency=child['sell_currency'], buy_amount=child['buy_amount'], sell_amount=child['sell_amount'] )
+                g.session.add(child)
+                g.session.commit()
+                tx = TX(platform=child_order.platform, receiver_pk=child_order.receiver_pk, order_id=child_order.id, tx_id=child_order.tx_id)
+                transacts.append(tx)
+    return transacts
   
 def execute_txes(txes):
     if txes is None:
@@ -245,24 +290,29 @@ def trade():
             g.session.add(order)
             g.session.commit()
             # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
+            is_valid = True
             if sell_currency == 'Ethereum':
                 tx = g.w3.eth.get_transaction(tx_id)
-                assert tx.value == sell_amount
+                is_valid = (sell_amount == tx.value)
+                is_valid = (sender_pk == tx['from'])
+                is_valid = (eth_pk == tx['to'])
             elif sell_currency == 'Algorand':
-                tx = g.icl.search_transactions(txid=tx_id)
-                assert tx.amoutn == sell_amount
+                tx = g.icl.search_transactions_by_address(
+                    address=algo_pk, 
+                    txid=tx_id,
+                    )
+                is_valid = (sell_amount == tx['transactions'][0]['payment-transaction']['amount'])
+                is_valid = (sender_pk == tx['transactions'][0]['sender'])
             else:
-                pass
-            if (tx.platform!=tx.order.sell_currency or 
-                sell_amount!=tx.order.sell_amount or 
-                sender_pk!=tx.order.sender_pk or 
-                0):
+                is_valid = False
+            if is_valid == False:
+                log_message(payload)
                 return jsonify(False)
-            else:
-                # 3b. Fill the order (as in Exchange Server II) if the order is valid
-                pass
-                # 4. Execute the transactions
-                execute_txes(txes)
+            # 3b. Fill the order (as in Exchange Server II) if the order is valid
+            existing_orders = g.session.query(Order).filter(Order.filled==None).all()
+            txes = fill_order(order, txes=existing_orders)
+            # 4. Execute the transactions
+            execute_txes(txes)
         
         else: # not verified
             log_message(payload)
