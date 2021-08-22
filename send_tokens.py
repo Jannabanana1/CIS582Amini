@@ -2,7 +2,7 @@
 
 from algosdk.v2client import algod
 from algosdk.v2client import indexer
-from algosdk import account, mnemonic
+from algosdk import account
 from algosdk.future import transaction
 
 def connect_to_algo(connection_type=''):
@@ -12,8 +12,7 @@ def connect_to_algo(connection_type=''):
     if connection_type == "indexer":
         # TODO: return an instance of the v2client indexer. This is used for checking payments for tx_id's
         algod_address = "https://testnet-algorand.api.purestake.io/idx2"
-        headers = {"X-API-Key": algod_token}
-        client = indexer.IndexerClient(indexer_token=algod_token, indexer_address=algod_address, headers=headers)
+        client = indexer.IndexerClient(algod_token, algod_address, headers=None)
     else:
         # TODO: return an instance of the client for sending transactions
         # Tutorial Link: https://developer.algorand.org/tutorials/creating-python-transaction-purestake-api/
@@ -45,7 +44,6 @@ def send_tokens_algo( acl, sender_sk, txes):
     tx_ids = []
     for i,tx in enumerate(txes):
         params.first += i
-        params.last += i
         receiver_pk = tx['receiver_pk']
         sell_amount = tx['order'].sell_amount
         unsigned_tx = "Replace me with a transaction object"
@@ -155,10 +153,3 @@ def send_tokens_eth(w3,sender_sk,txes):
         tx_ids.append(tx_id)
 
     return tx_ids
-
-IP_ADDR='3.23.118.2' #Private Ethereum
-PORT='8545'
-
-w3 = Web3(Web3.HTTPProvider('http://' + IP_ADDR + ':' + PORT))
-w3.middleware_onion.inject(geth_poa_middleware, layer=0) #Required to work on a PoA chain (like our private network)
-w3.eth.account.enable_unaudited_hdwallet_features()
